@@ -1,0 +1,90 @@
+{
+ "model": {
+  "type": "minecraft:range_dispatch",
+  "property": "minecraft:custom_model_data",
+  "index": 0,
+  "fallback": {
+   "type": "minecraft:model",
+   "model": "silahmod:item/rpg"
+  },
+  "entries": [
+   {
+    "threshold": 1.0,
+    "model": {
+     "type": "minecraft:model",
+     "model": "silahmod:item/rpg_r1"
+    }
+   },
+   {
+    "threshold": 2.0,
+    "model": {
+     "type": "minecraft:model",
+     "model": "silahmod:item/rpg_r2"
+    }
+   },
+   {
+    "threshold": 3.0,
+    "model": {
+     "type": "minecraft:model",
+     "model": "silahmod:item/rpg_r3"
+    }
+   },
+   {
+    "threshold": 4.0,
+    "model": {
+     "type": "minecraft:model",
+     "model": "silahmod:item/rpg_r4"
+    }
+   },
+   {
+    "threshold": 5.0,
+    "model": {
+     "type": "minecraft:model",
+     "model": "silahmod:item/rpg_r5"
+    }
+   },
+   {
+    "threshold": 6.0,
+    "model": {
+     "type": "minecraft:model",
+     "model": "silahmod:item/rpg_r6"
+    }
+   },
+   {
+    "threshold": 7.0,
+    "model": {
+     "type": "minecraft:model",
+     "model": "silahmod:item/rpg_r7"
+    }
+   },
+   {
+    "threshold": 8.0,
+    "model": {
+     "type": "minecraft:model",
+     "model": "silahmod:item/rpg_r8"
+    }
+   },
+   {
+    "threshold": 9.0,
+    "model": {
+     "type": "minecraft:model",
+     "model": "silahmod:item/rpg_r9"
+    }
+   },
+   {
+    "threshold": 10.0,
+    "model": {
+     "type": "minecraft:model",
+     "model": "silahmod:item/rpg_r10"
+    }
+   },
+   {
+    "threshold": 99.0,
+    "model": {
+     "type": "minecraft:model",
+     "model": "silahmod:item/rpg_empty"
+    }
+   }
+  ]
+ }
+}

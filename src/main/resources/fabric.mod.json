@@ -1,0 +1,34 @@
+{
+	"schemaVersion": 1,
+	"id": "silahmod",
+	"version": "${version}",
+	"name": "Silah Modu",
+	"description": "Keskin nisanci, RPG, tabanca ve bicak ekleyen silah modu.",
+	"authors": [
+		"Sen"
+	],
+	"contact": {},
+	"license": "All-Rights-Reserved",
+	"icon": "assets/silahmod/textures/item/sniper.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.silahmod.SilahMod"
+		],
+		"client": [
+			"com.silahmod.client.SilahModClient"
+		]
+	},
+	"mixins": [
+		{
+			"config": "silahmod.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.0",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

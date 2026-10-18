@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"package": "com.silahmod.client.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"AbstractClientPlayerMixin"
+	],
+	"injectors": {
+		"defaultRequire": 0
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
