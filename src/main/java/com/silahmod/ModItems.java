@@ -2,12 +2,9 @@ package com.silahmod;
 
 import java.util.function.Function;
 
+import com.silahmod.item.GunItem;
 import com.silahmod.item.KnifeItem;
-import com.silahmod.item.GrenadeItem;
 import com.silahmod.item.MedkitItem;
-import com.silahmod.item.RevolverItem;
-import com.silahmod.item.RpgItem;
-import com.silahmod.item.SniperItem;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.HolderLookup;
@@ -35,24 +32,22 @@ import net.minecraft.world.item.equipment.Equippable;
 public final class ModItems {
 	private ModItems() {}
 
-	// Menu ve creative sekmesindeki sira: sniper, rpg, revolver, bicak
-	public static final SniperItem SNIPER = register("sniper", SniperItem::new,
-			new Item.Properties().stacksTo(1)
-					.component(ModComponents.AMMO, new AmmoData(WeaponConfig.SNIPER_MAG, WeaponConfig.SNIPER_RESERVE)));
+	// ---------------- SILAHLAR (sayilar WeaponConfig'de) ----------------
+	public static final GunItem PISTOL = gun("pistol", WeaponConfig.PISTOL);
+	public static final GunItem GLOCK_17 = gun("glock_17", WeaponConfig.GLOCK_17);
+	public static final GunItem M4A1_S = gun("m4a1_s", WeaponConfig.M4A1_S);
+	public static final GunItem M4A4 = gun("m4a4", WeaponConfig.M4A4);
+	public static final GunItem AK_47 = gun("ak_47", WeaponConfig.AK_47);
+	public static final GunItem AK_74M = gun("ak_74m", WeaponConfig.AK_74M);
+	public static final GunItem P90 = gun("p90", WeaponConfig.P90);
+	public static final GunItem KRISS_VECTOR = gun("kriss_vector", WeaponConfig.KRISS_VECTOR);
 
-	public static final RpgItem RPG = register("rpg", RpgItem::new,
-			new Item.Properties().stacksTo(1)
-					.component(ModComponents.AMMO, new AmmoData(WeaponConfig.RPG_MAG, WeaponConfig.RPG_RESERVE)));
-
-	public static final RevolverItem REVOLVER = register("revolver", RevolverItem::new,
-			new Item.Properties().stacksTo(1)
-					.component(ModComponents.AMMO, new AmmoData(WeaponConfig.REVOLVER_MAG, WeaponConfig.REVOLVER_RESERVE)));
-
+	/** Bicak: hasar mantigi (arkadan / onden / kafa) Combat.onAttack icinde. Sayilar WeaponConfig'de. */
 	public static final KnifeItem KNIFE = register("knife", KnifeItem::new,
 			new Item.Properties().stacksTo(1));
 
 	// ---------------- ZIRHLAR (klasik envanterdeki zirh yuvalarindan giyilir) ----------------
-	/** Kask 1: demir kask gibi 2 zirh. RPG kafa hasari azaltmasi Armors.java'da. */
+	/** Kask 1: demir kask gibi 2 zirh. Kafa hasari azaltmasi Armors.java'da. */
 	public static final Item HELMET_1 = register("helmet_1", Item::new,
 			armorProperties(EquipmentSlot.HEAD, EquipmentSlotGroup.HEAD, "helmet_1", SoundEvents.ARMOR_EQUIP_IRON,
 					WeaponConfig.HELMET_1_ARMOR, WeaponConfig.HELMET_1_TOUGHNESS, 0.0));
@@ -73,9 +68,6 @@ public final class ModItems {
 			armorProperties(EquipmentSlot.CHEST, EquipmentSlotGroup.CHEST, "vest_2", SoundEvents.ARMOR_EQUIP_LEATHER,
 					0.0, 0.0, 0.0));
 
-	/** El bombasi: sag tik ile atilir, carptigi yerde TNT gucunde patlar. */
-	public static final Item GRENADE = register("grenade", GrenadeItem::new, new Item.Properties().stacksTo(16));
-
 	/** Medkit: sag tik basili tut, bandaj sarilir; biter bitmez can dolar ve gecici sari kalpler gelir. */
 	public static final Item MEDKIT = register("medkit", MedkitItem::new, new Item.Properties().stacksTo(4));
 
@@ -85,6 +77,11 @@ public final class ModItems {
 	private static <T extends Item> T register(String name, Function<Item.Properties, T> factory, Item.Properties properties) {
 		ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, SilahMod.id(name));
 		return Registry.register(BuiltInRegistries.ITEM, key, factory.apply(properties.setId(key)));
+	}
+
+	private static GunItem gun(String name, GunSpec spec) {
+		return register(name, properties -> new GunItem(properties, spec),
+				new Item.Properties().stacksTo(1).component(ModComponents.AMMO, new AmmoData(spec.mag(), spec.reserve())));
 	}
 
 	/**
@@ -122,22 +119,30 @@ public final class ModItems {
 		return stack;
 	}
 
-	/** Toplam menu sirasi: 0-3 silahlar, 4-7 zirhlar. */
-	public static final int COUNT = 10;
+	/** Menudeki toplam esya sayisi. */
+	public static final int COUNT = 14;
 
-	/** 0 sniper, 1 rpg, 2 revolver, 3 bicak, 4 kask 1, 5 yelek 1, 6 kask 2, 7 yelek 2, 8 el bombasi, 9 medkit */
+	/**
+	 * Menu sirasi (Net.GiveWeaponPayload ve WeaponMenuScreen ile ayni):
+	 * 0 pistol, 1 glock 17, 2 m4a1-s, 3 m4a4, 4 ak-47, 5 ak-74m, 6 p90, 7 kriss vector,
+	 * 8 kask 1, 9 yelek 1, 10 kask 2, 11 yelek 2, 12 medkit, 13 bicak
+	 */
 	public static Item byIndex(int index) {
 		return switch (index) {
-			case 0 -> SNIPER;
-			case 1 -> RPG;
-			case 2 -> REVOLVER;
-			case 3 -> KNIFE;
-			case 4 -> HELMET_1;
-			case 5 -> VEST_1;
-			case 6 -> HELMET_2;
-			case 7 -> VEST_2;
-			case 8 -> GRENADE;
-			case 9 -> MEDKIT;
+			case 0 -> PISTOL;
+			case 1 -> GLOCK_17;
+			case 2 -> M4A1_S;
+			case 3 -> M4A4;
+			case 4 -> AK_47;
+			case 5 -> AK_74M;
+			case 6 -> P90;
+			case 7 -> KRISS_VECTOR;
+			case 8 -> HELMET_1;
+			case 9 -> VEST_1;
+			case 10 -> HELMET_2;
+			case 11 -> VEST_2;
+			case 12 -> MEDKIT;
+			case 13 -> KNIFE;
 			default -> null;
 		};
 	}
@@ -145,14 +150,13 @@ public final class ModItems {
 	public static void init() {
 		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, TAB_KEY, FabricItemGroup.builder()
 				.title(Component.translatable("itemGroup.silahmod.silahlar"))
-				.icon(() -> new ItemStack(SNIPER))
+				.icon(() -> new ItemStack(AK_47))
 				.displayItems((context, entries) -> {
 					// Creative'den alinan silahlar dolu mermiyle gelir
-					entries.accept(SNIPER.createFull());
-					entries.accept(RPG.createFull());
-					entries.accept(REVOLVER.createFull());
+					for (GunItem gun : new GunItem[] { PISTOL, GLOCK_17, M4A1_S, M4A4, AK_47, AK_74M, P90, KRISS_VECTOR }) {
+						entries.accept(gun.createFull());
+					}
 					entries.accept(KNIFE);
-					entries.accept(new ItemStack(GRENADE, WeaponConfig.GRENADE_MENU_GIVE));
 					entries.accept(new ItemStack(MEDKIT, WeaponConfig.MEDKIT_MENU_GIVE));
 					entries.accept(HELMET_1);
 					entries.accept(VEST_1);

@@ -36,11 +36,11 @@ public final class Armors {
 		return 1.0F;
 	}
 
-	/** RPG'nin tam KAFA isabeti hasari bununla carpilir (Kask 1 yoksa 1.0). */
-	public static float rpgHeadFactor(LivingEntity entity) {
+	/** Silahlarin KAFA isabeti hasari bununla carpilir (Kask 1 yoksa 1.0). */
+	public static float headFactor(LivingEntity entity) {
 		ItemStack head = entity.getItemBySlot(EquipmentSlot.HEAD);
 		if (head.is(ModItems.HELMET_1)) {
-			return 1.0F - WeaponConfig.HELMET_1_RPG_HEAD_REDUCTION;
+			return 1.0F - WeaponConfig.HELMET_1_HEAD_REDUCTION;
 		}
 		return 1.0F;
 	}

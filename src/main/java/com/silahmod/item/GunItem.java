@@ -3,7 +3,10 @@ package com.silahmod.item;
 import java.util.List;
 
 import com.silahmod.AmmoData;
+import com.silahmod.Ballistics;
+import com.silahmod.GunSpec;
 import com.silahmod.ModComponents;
+import com.silahmod.WeaponConfig;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
@@ -12,35 +15,46 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
 
-/** Mermisi olan silahlarin ortak sinifi. Sinirsiz dayaniklilik: esyada hasar/dayaniklilik yok. */
-public abstract class GunItem extends Item {
+/**
+ * Tum ates eden silahlarin tek sinifi. Fark yaratan sayilar GunSpec'te (WeaponConfig).
+ * Sinirsiz dayaniklilik: esyada hasar/dayaniklilik yok.
+ */
+public class GunItem extends Item {
+	/** Reload sirasinda her animasyon karesinde calan ses (index 0 = 1. kare); null = ses yok. */
+	private static final String[] RELOAD_SOUNDS = {
+			"block.iron_trapdoor.open",   // 1: sarjor serbest
+			null,                         // 2: sarjor dusuyor
+			"item.armor.equip_iron",      // 3: yeni sarjor giriyor
+			"block.lever.click",          // 4: sarjor oturdu / kurma kolu
+			"item.crossbow.loading_end"   // 5: hazir
+	};
+
+	public final GunSpec spec;
 	public final int magSize;
 	public final int reserveMax;
-	public final int fireDelay;
+	public final float fireDelay;
 	public final int reloadTicks;
 
-	protected GunItem(Properties properties, int magSize, int reserveMax, int fireDelay, int reloadTicks) {
+	public GunItem(Properties properties, GunSpec spec) {
 		super(properties);
-		this.magSize = magSize;
-		this.reserveMax = reserveMax;
-		this.fireDelay = fireDelay;
-		this.reloadTicks = reloadTicks;
+		this.spec = spec;
+		this.magSize = spec.mag();
+		this.reserveMax = spec.reserve();
+		this.fireDelay = spec.fireDelay();
+		this.reloadTicks = spec.reloadTicks();
 	}
 
-	/** Mermisi bitmis halin ozel modeli (roketsiz RPG gibi) varsa bu kare numarasi gosterilir. */
-	public static final int EMPTY_FRAME = 99;
+	public boolean automatic() {
+		return this.spec.automatic();
+	}
 
 	/** Reload animasyonunun kare sayisi. tools/gen_models.py'deki kare sayisiyla ayni olmali. */
-	public abstract int reloadFrames();
-
-	/** Kare numarasina (1'den baslar, dizi 0'dan) denk gelen ses; null = ses yok. */
-	public String[] reloadSounds() {
-		return new String[0];
+	public int reloadFrames() {
+		return WeaponConfig.RELOAD_FRAMES;
 	}
 
-	/** Mermi bitince farkli (bos) model gosterilecekse true. */
-	protected boolean hasEmptyModel() {
-		return false;
+	public String[] reloadSounds() {
+		return RELOAD_SOUNDS;
 	}
 
 	/**
@@ -67,13 +81,15 @@ public abstract class GunItem extends Item {
 		}
 	}
 
-	/** Animasyon yokken gosterilmesi gereken kareyi ayarla (normal model ya da bos model). */
+	/** Animasyon yokken normal modeli goster. */
 	public void refreshIdleFrame(ItemStack stack) {
-		setFrame(stack, hasEmptyModel() && ammo(stack).mag() <= 0 ? EMPTY_FRAME : 0);
+		setFrame(stack, 0);
 	}
 
 	/** Sunucuda atis: mermi dusme ve bekleme suresi Combat tarafindan halledilir. */
-	public abstract void fire(ServerPlayer player, ServerLevel level);
+	public void fire(ServerPlayer player, ServerLevel level) {
+		Ballistics.shoot(level, player, this.spec);
+	}
 
 	public AmmoData ammo(ItemStack stack) {
 		return stack.getOrDefault(ModComponents.AMMO, new AmmoData(this.magSize, this.reserveMax));

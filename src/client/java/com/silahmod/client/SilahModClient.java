@@ -34,7 +34,6 @@ public class SilahModClient implements ClientModInitializer {
 			if (client.player == null || client.getConnection() == null) {
 				return;
 			}
-			ScopeGlint.tick(client);
 			while (reloadKey.consumeClick()) {
 				if (client.player.getMainHandItem().getItem() instanceof GunItem) {
 					ClientPlayNetworking.send(new Net.ReloadPayload());
@@ -48,10 +47,14 @@ public class SilahModClient implements ClientModInitializer {
 		});
 
 		// Sol tik: elinde ates edilen silah varsa vanilla saldiri yerine ates et.
-		// clickCount > 0 = tusa gercekten basildi (basili tutmak surekli ates etmez).
+		//  - Yari-otomatik silah (pistol, Glock): her tik tek atis.
+		//  - Otomatik silah (tufekler, SMG): sol tik basili tutuldukca her tick ates istegi gider;
+		//    gercek atis hizini sunucu (GunSpec.fireDelay) sinirlar.
 		ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> {
-			if (player.getMainHandItem().getItem() instanceof GunItem) {
-				if (clickCount > 0 && !player.isSpectator()) {
+			if (player.getMainHandItem().getItem() instanceof GunItem gun) {
+				boolean pressed = clickCount > 0;
+				boolean held = gun.automatic() && client.options.keyAttack.isDown();
+				if ((pressed || held) && !player.isSpectator() && client.screen == null) {
 					ClientPlayNetworking.send(new Net.ShootPayload());
 				}
 				return true; // blok kirma / vanilla saldiriyi engelle
@@ -59,9 +62,8 @@ public class SilahModClient implements ClientModInitializer {
 			return false;
 		});
 
-		// Scope katmani ve mermi sayaci
-		HudElementRegistry.attachElementAfter(VanillaHudElements.MISC_OVERLAYS, SilahMod.id("scope"), ScopeOverlay::renderScope);
-		HudElementRegistry.attachElementAfter(VanillaHudElements.INFO_BAR, SilahMod.id("ammo"), ScopeOverlay::renderAmmo);
+		// Mermi sayaci
+		HudElementRegistry.attachElementAfter(VanillaHudElements.INFO_BAR, SilahMod.id("ammo"), AmmoOverlay::renderAmmo);
 		// Medkit bandaj sarma animasyonu (oyuncunun kendi skinindeki kol)
 		HudElementRegistry.attachElementAfter(VanillaHudElements.MISC_OVERLAYS, SilahMod.id("medkit"), MedkitOverlay::render);
 	}

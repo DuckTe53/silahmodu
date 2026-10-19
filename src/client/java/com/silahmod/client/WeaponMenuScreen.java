@@ -12,30 +12,32 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * B tusuyla acilan menu. Sol sutun silahlar, sag sutun zirhlar.
+ * B tusuyla acilan menu. Iki sutun silahlar, ucuncu sutun zirhlar ve medkit.
  * Bir esyaya tiklayinca sunucu onu envantere verir.
  *
  * NOT: Arka plani (renderBackground) elle CAGIRMA. Screen.render() zaten cizer; ikinci kez cizmek
  * Minecraft 1.21.6+ surumlerinde "Can only blur once per frame" hatasiyla oyunu coker.
  */
 public class WeaponMenuScreen extends Screen {
-	/** Sira ModItems.byIndex ile ayni: 0 sniper, 1 rpg, 2 revolver, 3 bicak, 4-7 zirhlar, 8 el bombasi, 9 medkit. */
+	/** Sira ModItems.byIndex ile ayni. */
 	private static final String[] NAME_KEYS = {
-			"item.silahmod.sniper", "item.silahmod.rpg", "item.silahmod.revolver", "item.silahmod.knife",
+			"item.silahmod.pistol", "item.silahmod.glock_17", "item.silahmod.m4a1_s", "item.silahmod.m4a4",
+			"item.silahmod.ak_47", "item.silahmod.ak_74m", "item.silahmod.p90", "item.silahmod.kriss_vector",
 			"item.silahmod.helmet_1", "item.silahmod.vest_1", "item.silahmod.helmet_2", "item.silahmod.vest_2",
-			"item.silahmod.grenade", "item.silahmod.medkit"
+			"item.silahmod.medkit", "item.silahmod.knife"
 	};
-	/** Menu yerlesimi: her sutun icin esya indeksleri. Sol = Silahlar, sag = Zirhlar. */
+	/** Menu yerlesimi: her sutun icin esya indeksleri. Sutun 0-1 = Silahlar, sutun 2 = Zirhlar ve medkit. */
 	private static final int[][] COLUMNS = {
-			{ 0, 1, 2, 3, 8 },
-			{ 4, 5, 6, 7, 9 }
+			{ 0, 1, 2, 3 },
+			{ 4, 5, 6, 7, 13 },
+			{ 8, 9, 10, 11, 12 }
 	};
-	private static final int ROWS = 5;           // her sutunda 5 esya
-	private static final int BUTTON_W = 130;
+	private static final int ROWS = 5;           // en uzun sutunda 5 esya
+	private static final int BUTTON_W = 104;
 	private static final int BUTTON_H = 22;
 	private static final int GAP = 5;
 	private static final int ICON_SPACE = 22;    // butonun solundaki ikon alani
-	private static final int COLUMN_GAP = 14;
+	private static final int COLUMN_GAP = 10;
 
 	public WeaponMenuScreen() {
 		super(Component.translatable("screen.silahmod.menu"));
@@ -46,9 +48,9 @@ public class WeaponMenuScreen extends Screen {
 		return this.height / 2 - total / 2 + 12;
 	}
 
-	/** Sutunun (0 = silahlar, 1 = zirhlar) butonlarinin sol x konumu. */
+	/** Sutunun butonlarinin sol x konumu. */
 	private int columnX(int column) {
-		int blockW = 2 * (ICON_SPACE + BUTTON_W) + COLUMN_GAP;
+		int blockW = COLUMNS.length * (ICON_SPACE + BUTTON_W) + (COLUMNS.length - 1) * COLUMN_GAP;
 		int left = this.width / 2 - blockW / 2;
 		return left + column * (ICON_SPACE + BUTTON_W + COLUMN_GAP) + ICON_SPACE;
 	}
@@ -79,10 +81,12 @@ public class WeaponMenuScreen extends Screen {
 		super.render(graphics, mouseX, mouseY, delta);
 
 		graphics.drawCenteredString(this.font, this.title, this.width / 2, top() - 22, 0xFFFFFFFF);
+		// "Silahlar" basligi iki sutunun ortasinda
+		int weaponsCenter = (columnX(0) + columnX(1) + BUTTON_W) / 2;
 		graphics.drawCenteredString(this.font, Component.translatable("gui.silahmod.weapons"),
-				columnX(0) + BUTTON_W / 2, top() - 10, 0xFFAAAAAA);
+				weaponsCenter, top() - 10, 0xFFAAAAAA);
 		graphics.drawCenteredString(this.font, Component.translatable("gui.silahmod.armors"),
-				columnX(1) + BUTTON_W / 2, top() - 10, 0xFFAAAAAA);
+				columnX(2) + BUTTON_W / 2, top() - 10, 0xFFAAAAAA);
 
 		// Her butonun soluna esya ikonu
 		int y = top();

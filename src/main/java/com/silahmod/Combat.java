@@ -18,10 +18,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-/** Sunucu tarafi savas mantigi: atis, sarjor doldurma, bicak vurusu. */
+/** Sunucu tarafi savas mantigi: atis (seri ates dahil), sarjor doldurma, bicak vurusu, silah verme. */
 public final class Combat {
 	private Combat() {}
 
@@ -39,12 +40,14 @@ public final class Combat {
 		}
 	}
 
-	private static final Map<UUID, Long> NEXT_SHOT = new HashMap<>();
+	/** Oyuncunun bir sonraki atisi yapabilecegi zaman (tick, kusuratli: 1.33 tick'lik atis hizi icin). */
+	private static final Map<UUID, Double> NEXT_SHOT = new HashMap<>();
 	private static final Map<UUID, Long> KNIFE_NEXT = new HashMap<>();
 	private static final Map<UUID, Reload> RELOADS = new HashMap<>();
 
 	public static void init() {
 		ServerTickEvents.END_SERVER_TICK.register(Combat::tick);
+		AttackEntityCallback.EVENT.register(Combat::onAttack);
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 			UUID id = handler.getPlayer().getUUID();
 			NEXT_SHOT.remove(id);
@@ -60,7 +63,6 @@ public final class Combat {
 				}
 			}
 		});
-		AttackEntityCallback.EVENT.register(Combat::onAttack);
 	}
 
 	private static void message(ServerPlayer player, String key, Object... args) {
@@ -69,7 +71,10 @@ public final class Combat {
 
 	// ------------------------------------------------------------------ ATIS
 
-	/** Istemci sol tiki basinca gonderdi. */
+	/**
+	 * Istemci ates istegi gonderdi. Otomatik silahlarda sol tik basili tutulurken her tick gelir;
+	 * atis hizi burada (fireDelay) sinirlanir, yani istemci ne kadar sik gonderirse gondersin hiz ayni kalir.
+	 */
 	public static void shoot(ServerPlayer player) {
 		ItemStack stack = player.getMainHandItem();
 		if (!(stack.getItem() instanceof GunItem gun) || player.isSpectator()) {
@@ -83,14 +88,15 @@ public final class Combat {
 			return;
 		}
 		long now = level.getGameTime();
-		if (now < NEXT_SHOT.getOrDefault(id, 0L)) {
+		double next = NEXT_SHOT.getOrDefault(id, 0.0);
+		if (now < next) {
 			return;
 		}
 
 		AmmoData ammo = gun.ammo(stack);
 		if (ammo.mag() <= 0) {
 			Sfx.play(level, player.getX(), player.getEyeY(), player.getZ(), "block.dispenser.fail", 0.8F, 1.5F);
-			NEXT_SHOT.put(id, now + 10);
+			NEXT_SHOT.put(id, now + 10.0);
 			if (ammo.reserve() > 0) {
 				reload(player);
 			} else {
@@ -99,7 +105,9 @@ public final class Combat {
 			return;
 		}
 
-		NEXT_SHOT.put(id, now + gun.fireDelay);
+		// Bosta bekledikten sonra ilk atis tam o tick'te cikar; seri atista sure birikerek ilerler (kusurat korunur).
+		double base = (now - next >= 1.0) ? now : next;
+		NEXT_SHOT.put(id, base + gun.fireDelay);
 		gun.setAmmo(stack, new AmmoData(ammo.mag() - 1, ammo.reserve()));
 		gun.refreshIdleFrame(stack);
 		gun.fire(player, level);
@@ -147,8 +155,6 @@ public final class Combat {
 	}
 
 	private static void tick(MinecraftServer server) {
-		RocketManager.tick();
-
 		if (RELOADS.isEmpty()) {
 			return;
 		}
@@ -252,17 +258,17 @@ public final class Combat {
 		return flat.lengthSqr() < 1.0E-6 ? new Vec3(0, 0, 1) : flat.normalize();
 	}
 
-	// ----------------------------------------------------------- SILAH VERME
+	// ----------------------------------------------------------- ESYA VERME
 
-	/** B menusunden istenen silahi oyuncuya verir. Zaten varsa mermisini doldurur. */
+	/** B menusunden istenen esyayi oyuncuya verir. Silah zaten varsa mermisini doldurur. */
 	public static void giveWeapon(ServerPlayer player, int index) {
-		net.minecraft.world.item.Item item = ModItems.byIndex(index);
+		Item item = ModItems.byIndex(index);
 		if (item == null) {
 			return;
 		}
-		if (item == ModItems.GRENADE || item == ModItems.MEDKIT) {
+		if (item == ModItems.MEDKIT) {
 			// Tuketilebilir: istenen adede tamamla (zaten yeterince varsa dokunma)
-			int give = item == ModItems.GRENADE ? WeaponConfig.GRENADE_MENU_GIVE : WeaponConfig.MEDKIT_MENU_GIVE;
+			int give = WeaponConfig.MEDKIT_MENU_GIVE;
 			for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
 				ItemStack have = player.getInventory().getItem(i);
 				if (have.getItem() == item) {

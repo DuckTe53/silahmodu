@@ -1,8 +1,4 @@
 {
-  "item.silahmod.sniper": "Keskin Nişancı",
-  "item.silahmod.rpg": "RPG",
-  "item.silahmod.revolver": "Revolver",
-  "item.silahmod.knife": "Bıçak",
   "itemGroup.silahmod.silahlar": "Silahlar",
   "key.category.silahmod.silahlar": "Silah Modu",
   "key.silahmod.reload": "Şarjör Doldur",
@@ -10,7 +6,6 @@
   "screen.silahmod.menu": "Silah Menüsü",
   "gui.silahmod.close": "Kapat",
   "message.silahmod.headshot": "KAFADAN VURUŞ!",
-  "message.silahmod.backstab": "ARKADAN SALDIRI!",
   "message.silahmod.reloading": "Dolduruluyor...",
   "message.silahmod.reloaded": "Dolduruldu: %s / %s",
   "message.silahmod.reload_cancelled": "Doldurma iptal edildi",
@@ -22,7 +17,16 @@
   "item.silahmod.helmet_2": "Seviye 2 Kask",
   "item.silahmod.vest_2": "Seviye 2 Yelek",
   "gui.silahmod.weapons": "Silahlar",
-  "gui.silahmod.armors": "Zırhlar",
-  "item.silahmod.grenade": "El Bombası",
-  "item.silahmod.medkit": "Medkit"
+  "gui.silahmod.armors": "Zırhlar ve Medkit",
+  "item.silahmod.medkit": "Medkit",
+  "item.silahmod.pistol": "Pistol",
+  "item.silahmod.glock_17": "Glock 17",
+  "item.silahmod.m4a1_s": "M4A1-S",
+  "item.silahmod.m4a4": "M4A4",
+  "item.silahmod.ak_47": "AK-47",
+  "item.silahmod.ak_74m": "AK-74M",
+  "item.silahmod.p90": "FN P90",
+  "item.silahmod.knife": "Bıçak",
+  "message.silahmod.backstab": "ARKADAN SALDIRI!",
+  "item.silahmod.kriss_vector": "Kriss Vector"
 }

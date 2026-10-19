@@ -1,10 +1,13 @@
 package com.silahmod;
 
 /**
- * Tum silah ayarlari burada. Sayilari degistirip tekrar derlemen yeterli.
+ * Tum ayarlar burada. Sayilari degistirip tekrar derlemen yeterli.
  *
- * Hasar birimi: HP. 1 kalp = 2 HP (5 kalp = 10 HP).
+ * Hasar birimi: HP. 1 kalp = 2 HP (5 kalp = 10 HP). Oyuncunun cani 20 HP (10 kalp).
  * Sure birimi: tick. 20 tick = 1 saniye.
+ *
+ * NOT: Silahlarin sayilarini (hasar, mermi, atis hizi...) sen belirtmedigin icin benim varsayimimdir.
+ * Hepsi asagidaki GunSpec satirlarinda; istedigin gibi degistir.
  */
 public final class WeaponConfig {
 	private WeaponConfig() {}
@@ -13,49 +16,48 @@ public final class WeaponConfig {
 		return hearts * 2.0F;
 	}
 
-	// ---------------- KESKIN NISANCI ----------------
-	public static final int SNIPER_MAG = 3;            // sarjor
-	public static final int SNIPER_RESERVE = 12;       // yedek mermi
-	public static final float SNIPER_HEAD = 200.0F;    // kafa
-	public static final float SNIPER_BODY = hearts(5); // govde = 10 HP
-	public static final float SNIPER_ZOOM = 2.5F;      // scope yakinlastirma (2.5x)
-	public static final double SNIPER_RANGE = 300.0;
-	public static final int SNIPER_FIRE_DELAY = 30;    // atislar arasi (1.5 sn) - benim varsayimim
-	public static final int SNIPER_RELOAD = 70;        // doldurma suresi - benim varsayimim
-	public static final int SNIPER_RELOAD_FRAMES = 10; // reload animasyon kare sayisi (tools/gen_models.py ile ayni olmali)
-	public static final boolean SNIPER_GLINT = true;   // durbun acan oyuncunun durbununde, BASKALARININ gordugu isik
-	public static final int SNIPER_GLINT_INTERVAL = 2; // isik kac tickte bir parlar (kucuk = daha sik)
-	public static final int SNIPER_GLINT_COLOR = 0xFFF2B0; // isik rengi (RGB). Kirmizi istersen 0xFF2020
-	public static final float SNIPER_GLINT_SIZE = 1.3F;    // isik buyuklugu
+	// ---------------- SILAHLAR ----------------
+	/** Reload animasyonunun kare sayisi. tools/gen_models.py'deki kare sayisiyla ayni olmali. */
+	public static final int RELOAD_FRAMES = 5;
 
-	// ---------------- RPG ----------------
-	public static final int RPG_MAG = 3;
-	public static final int RPG_RESERVE = 18;
-	public static final float RPG_BLAST = hearts(5);       // alan hasari = 10 HP
-	public static final float RPG_DIRECT_HEAD = hearts(7.5F); // tam kafa = 15 HP
-	public static final double RPG_AREA = 5.0;             // 5x5x5 blokluk alan
-	public static final boolean RPG_HURTS_SHOOTER = true;  // false yaparsan kendine zarar vermez
-	public static final double RPG_SPEED = 1.6;            // blok/tick
-	public static final int RPG_MAX_AGE = 120;             // 6 sn sonra kendiliginden patlar
-	public static final int RPG_FIRE_DELAY = 40;
-	public static final int RPG_RELOAD = 80;
-	public static final int RPG_RELOAD_FRAMES = 10;
+	//                                          mag res  delay reload body head range spread auto   ses                              vol  pitch
+	/** Pistol: agir vuran, yavas yari-otomatik. */
+	public static final GunSpec PISTOL = new GunSpec(12, 48, 4.0F, 40, 5.0F, 14.0F, 100.0, 0.2F, false,
+			"entity.firework_rocket.blast", 2.5F, 1.2F);
 
-	// ---------------- REVOLVER ----------------
-	public static final int REVOLVER_MAG = 8;
-	public static final int REVOLVER_RESERVE = 32;
-	public static final float REVOLVER_HEAD = 200.0F;
-	public static final float REVOLVER_BODY = hearts(4);   // 8 HP
-	public static final double REVOLVER_RANGE = 120.0;
-	public static final int REVOLVER_FIRE_DELAY = 8;
-	public static final int REVOLVER_RELOAD = 50;
-	public static final int REVOLVER_RELOAD_FRAMES = 9;
+	/** Glock 17: hafif, hizli tiklanir, 17'lik sarjor. */
+	public static final GunSpec GLOCK_17 = new GunSpec(17, 68, 3.0F, 36, 4.0F, 11.0F, 90.0, 0.3F, false,
+			"entity.firework_rocket.blast", 2.5F, 1.5F);
+
+	/** M4A1-S: susturuculu, isabetli, yavas atar. */
+	public static final GunSpec M4A1_S = new GunSpec(20, 80, 3.0F, 50, 5.0F, 14.0F, 160.0, 0.4F, true,
+			"entity.firework_rocket.shoot", 1.2F, 1.6F);
+
+	/** M4A4: hizli ve dengeli. */
+	public static final GunSpec M4A4 = new GunSpec(30, 120, 2.0F, 56, 4.5F, 13.0F, 160.0, 0.8F, true,
+			"entity.firework_rocket.blast", 2.5F, 0.9F);
+
+	/** AK-47: en sert vuran tufek, kafadan tek atista oldurur, geri tepmesi (sacilma) yuksek. */
+	public static final GunSpec AK_47 = new GunSpec(30, 120, 2.0F, 60, 6.0F, 22.0F, 150.0, 1.0F, true,
+			"entity.firework_rocket.blast", 3.0F, 0.7F);
+
+	/** AK-74M: AK-47'den hafif, daha kontrollu. */
+	public static final GunSpec AK_74M = new GunSpec(30, 120, 2.0F, 56, 5.0F, 15.0F, 150.0, 0.7F, true,
+			"entity.firework_rocket.blast", 2.8F, 0.85F);
+
+	/** FN P90: 50'lik sarjor, cok hizli, dusuk hasar, kisa menzil. 1.33 tick = ~900 atis/dk. */
+	public static final GunSpec P90 = new GunSpec(50, 150, 1.33F, 64, 3.0F, 8.0F, 90.0, 1.1F, true,
+			"entity.firework_rocket.blast", 2.0F, 1.3F);
+
+	/** Kriss Vector: en hizli (1200 atis/dk), cok dusuk hasar, kisa menzil. */
+	public static final GunSpec KRISS_VECTOR = new GunSpec(25, 100, 1.0F, 44, 2.5F, 7.0F, 80.0, 1.2F, true,
+			"entity.firework_rocket.blast", 2.0F, 1.4F);
 
 	// ---------------- ZIRHLAR ----------------
-	// Kask 1 (yesil): demir kask gibi (2 zirh) + RPG'nin tam kafa isabetini azaltir. Azaltma orani benim varsayimim.
+	// Kask 1 (yesil): demir kask gibi (2 zirh) + KAFA vuruslarinin hasarini azaltir. Azaltma orani benim varsayimim.
 	public static final double HELMET_1_ARMOR = 2.0;
 	public static final double HELMET_1_TOUGHNESS = 0.0;
-	public static final float HELMET_1_RPG_HEAD_REDUCTION = 0.25F;   // RPG tam kafa hasari %25 azalir
+	public static final float HELMET_1_HEAD_REDUCTION = 0.25F;       // silah kafa hasari %25 azalir (0 = etkisiz)
 
 	// Yelek 1 (gri kamuflaj): tum silahlarin govde hasarini azaltir
 	public static final float VEST_1_BODY_REDUCTION = 0.15F;         // %15
@@ -74,14 +76,6 @@ public final class WeaponConfig {
 	public static final int MEDKIT_ABSORB_HEARTS = 10;      // gecici sari kalp (10 kalp = 20 can)
 	public static final int MEDKIT_ABSORB_TICKS = 1200;     // sari kalplerin suresi -> 60 sn
 	public static final int MEDKIT_MENU_GIVE = 2;           // menuden alinca kac adet verilir
-
-	// ---------------- EL BOMBASI ----------------
-	// Patlama TNT ile birebir ayni (guc 4.0, blok kirar, ayni hasar); sadece TNT gorunmez, bomba modeli gorunur.
-	public static final float GRENADE_POWER = 4.0F;         // TNT = 4.0
-	public static final float GRENADE_SPEED = 1.2F;         // atis hizi
-	public static final int GRENADE_COOLDOWN_TICKS = 20;    // iki atis arasi bekleme
-	public static final int GRENADE_MAX_AGE_TICKS = 100;    // bir sey'e carpmazsa en gec bu surede patlar (5 sn)
-	public static final int GRENADE_MENU_GIVE = 4;          // menuden alinca kac adet verilir
 
 	// ---------------- BICAK ----------------
 	public static final float KNIFE_BACKSTAB = 200.0F;     // arkadan
